@@ -12,6 +12,9 @@ jokes = [
         "Tank.",
         "Tank who?",
         "You’re welcome.",
+        "Dog",
+        "Dogs",
+        "Puppy"
     ),
     (
         "Knock, knock.",
