@@ -1,69 +1,71 @@
 # %%
-# TITLE: AI FOR TEXT EMBEDDINGS
-from jokes import jokes  # get some data
-import string
-from torch.utils.tensorboard import SummaryWriter
-import numpy as np
+from tokenizers.pre_tokenizers import Whitespace
+from tokenizers.models import WordPiece, WordLevel
+from tokenizers import Tokenizer, normalizers
+from tokenizers.trainers import WordLevelTrainer
+from transformers import BertModel, BertTokenizer
 
-# TOKENISATION GET UNIQUE LIST OF WORDS
-
-
-def joke_tokeniser(corpus):
-    tokens = []
-    for joke in jokes:
-        joke_tokens = []
-        for line in joke:
-            # CLEAN THIS DATA
-            line = line.lower()
-            line = line.translate(str.maketrans('', '', string.punctuation))
-            line = line.replace('’s', '')
-            joke_tokens.extend(line.split())
-        tokens.extend(
-            joke_tokens
-        )
-    tokens = set(tokens)
-    return tokens
+# %%
+train_corpus = "pythonwiki.txt"
 
 
-tokens = joke_tokeniser(corpus=jokes)
+def get_tokenizer():
+    tokenizer = Tokenizer(WordLevel())
+    tokenizer.pre_tokenizer = Whitespace()
+    tokenizer.normalizer = normalizers.Sequence([
+        normalizers.Lowercase()
+    ])
+    trainer = WordLevelTrainer()
+    tokenizer.train([train_corpus], trainer)
+    return tokenizer
+
+# BERT
+
+
+tokenizer = get_tokenizer()
+
+# %%
+
+tokenizer.get_vocab()
+for idx in range(len(tokenizer.get_vocab())):
+    print(tokenizer.id_to_token(idx))
+output = tokenizer.encode("rough This parts")
+print(output.tokens)
+# print(output.ids)
+# %%
+model_name = 'bert-base-uncased'
+model = BertModel.from_pretrained(model_name)
+
+
+sentence = "Now I want to know what does this vector refers to in dictionary"
+
+bert_tokenizer = BertTokenizer.from_pretrained(model_name)
+tokens = bert_tokenizer.encode(sentence)
 print(tokens)
 
-# CREATE SOME HANDCRAFTED EMBEDDINGS AND APPLY TO EACH WORD
+
+# var = 10
+
+# class MyClass:
+#     def my_method(self):
+#         pass
+
+#     @staticmethod
+#     def my_static_method():
+#         pass
+
+#     @classmethod
+#     def class_method(cls):
+#         pass
 
 
-def embed(word):
-    embedding = [
-        get_num_vowels(word),
-        get_num_consonants(word),
-        len(word)
-    ]
-    return embedding
+# myclass = MyClass()
+# myclass.my_method()
 
+# MyClass.my_static_method()
+# myclass.my_static_method()
 
-def get_num_vowels(word):
-    return len([char for char in word if char in ("a", "e", "i", "o", "u")])
-
-
-def get_num_consonants(word):
-    return len([char for char in word if char not in ("a", "e", "i", "o", "u")])
-
-
-# VISUALISE THAT IN 3D SPACE
-embeddings = np.array([embed(word) for word in tokens])
-writer = SummaryWriter()
-writer.add_scalar('test', 100)
-print(embeddings)
-print(list(tokens))
-writer.add_embedding(
-    mat=embeddings,
-    metadata=list(tokens)
-)
-
-# VISUALISER HIGHER DIM EMBEDDINGS
-# LOOK INTO MORE ADVANCED EMBEDDINGS BERT
-# LEARN OUR OWN EMBEDDINGS FROM SCRATCH
-
-# CREATE VOCAB = MAPPING BETWEEN EACH TOKEN IN YOUR CORPUS AND AN INTEGER INDEX
-# [0, 4, -1]
+# MyClass.class_method()
+# myclass.class_method()
 
 # %%
