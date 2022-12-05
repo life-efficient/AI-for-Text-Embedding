@@ -2,7 +2,6 @@
 # TITLE: AI FOR TEXT EMBEDDINGS
 from jokes import jokes  # get some data
 import string
-from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 # TOKENISATION GET UNIQUE LIST OF WORDS
@@ -55,14 +54,7 @@ def get_num_consonants(word):
 
 # VISUALISE THAT IN 3D SPACE
 embeddings = np.array([embed(word) for word in tokens])
-writer = SummaryWriter()
-writer.add_scalar('test', 100)
-print(embeddings)
-print(list(tokens))
-writer.add_embedding(
-    mat=embeddings,
-    metadata=list(tokens)
-)
+
 
 # VISUALISER HIGHER DIM EMBEDDINGS
 # LOOK INTO MORE ADVANCED EMBEDDINGS BERT
