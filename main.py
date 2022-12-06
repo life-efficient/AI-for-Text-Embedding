@@ -5,7 +5,8 @@ from tokenizers.models import WordPiece, WordLevel
 from tokenizers import Tokenizer, normalizers
 from tokenizers.trainers import WordLevelTrainer
 from transformers import BertModel, BertTokenizer
-
+from time import time
+import pandas as pd
 # %%
 train_corpus = "pythonwiki.txt"
 
@@ -52,11 +53,21 @@ print(tokens)
 # %%
 # TODO DOES A ROUNT TRIP - ENCODING AND DECODING RESULT IN THE SAME THING?
 
-# %%
+
 # TODO GET EMBEDDINGS FROM BERT MODEL
-embedding_matrix = model.embeddings.word_embeddings.weight
+embedding_matrix = model.embeddings.word_embeddings.weight.detach()
+embedding_matrix = embedding_matrix[:1000]
 print(embedding_matrix)
 print(embedding_matrix.shape)
+
+# %%
+# ADD NEW COLS
+labels = pd.DataFrame(bert_tokenizer.ids_to_tokens.values())
+print(type(labels))
+labels["len"] = labels[0].apply(lambda word: len(word))
+
+# SAVE
+labels.to_csv("metadata.tsv", sep="\t")
 # %%
 
 
@@ -68,8 +79,31 @@ print(bert_tokenizer.ids_to_tokens)
 # TODO VISUALISE BERT EMBEDDING
 visualise_embeddings(
     embedding_matrix,
-    labels=bert_tokenizer.ids_to_tokens.values()
+    labels="metadata.tsv",
 )
+
+# %%
+# LABEL BY LENGTH
+start = time()
+visualise_embeddings(
+    embedding_matrix,
+    labels=[len(word)
+            for word in list(bert_tokenizer.ids_to_tokens.values())[:1000]],
+)
+print(f"Total time:", time() - start)
+# def get_color():
+
+
+# def get_num_vowels(word):
+#     return len([char for char in word if char in ("a", "e", "i", "o", "u")])
+
+
+# def get_num_consonants(word):
+#     return len([char for char in word if char not in ("a", "e", "i", "o", "u")])
+
+# TODO parts of speech
+
+#
 
 # %%
 

@@ -8,5 +8,6 @@ def visualise_embeddings(embeddings, labels=None):
     writer.add_embedding(
         mat=embeddings,
         metadata=labels
+        # metadata_header=["0", "len"]
     )
     print("Embedding done")
