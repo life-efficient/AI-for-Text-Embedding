@@ -62,12 +62,12 @@ print(embedding_matrix.shape)
 
 # %%
 # ADD NEW COLS
-labels = pd.DataFrame(bert_tokenizer.ids_to_tokens.values())
+labels = pd.DataFrame({"Word": bert_tokenizer.ids_to_tokens.values()})
 print(type(labels))
-labels["len"] = labels[0].apply(lambda word: len(word))
+labels["len"] = labels["Word"].apply(lambda word: len(word))
 
 # SAVE
-labels.to_csv("metadata.tsv", sep="\t")
+# labels.to_csv("metadata.tsv", sep="\t") # this is the format that tensorboard expects
 # %%
 
 
@@ -77,20 +77,22 @@ print(bert_tokenizer.ids_to_tokens)
 
 # %%
 # TODO VISUALISE BERT EMBEDDING
-visualise_embeddings(
-    embedding_matrix,
-    labels="metadata.tsv",
-)
+# visualise_embeddings(
+#     embedding_matrix,
+#     labels="metadata.tsv",
+# )
 
 # %%
 # LABEL BY LENGTH
 start = time()
 visualise_embeddings(
     embedding_matrix,
-    labels=[len(word)
+    labels=[[len(word), word]
             for word in list(bert_tokenizer.ids_to_tokens.values())[:1000]],
+    label_names=["Length", "Word"]
 )
 print(f"Total time:", time() - start)
+# %%
 # def get_color():
 
 
