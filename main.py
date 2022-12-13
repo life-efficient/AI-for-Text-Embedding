@@ -120,7 +120,7 @@ def get_word_embedding(word):
     return embedding
 
 
-def analogy_solver(a, b, c, embedding_matrix, labels):
+def analogy_solver(a, b, c, embedding_matrix, labels, n=2):
     """
     Solves A is to B what C is to D, given, A, B & C, returning D
 
@@ -139,16 +139,20 @@ def analogy_solver(a, b, c, embedding_matrix, labels):
     print(c_embedding.shape)
     d_embedding = c_embedding + transformation_vector
     print(d_embedding.shape)
-    nearest_tokens = get_token_from_embedding(d_embedding)
+    nearest_tokens = get_token_from_embedding(d_embedding, n=n+1)
     for d in nearest_tokens:
+        if d == c:
+            continue
         print(f"{a} is to {b} as {c} is to {d}")
+    print()
 
 
 def get_token_from_embedding(embedding, n=20):
     # cosine similarity from d_embedding to embedding of all words
     similarity = torchmetrics.functional.pairwise_cosine_similarity(
         embedding.unsqueeze(0), embedding_matrix).squeeze()
-    similarity_idx = torch.argsort(similarity, dim=0)
+    similarity_idx = reversed(torch.argsort(similarity, dim=0))
+    print(similarity_idx.shape)
     similarity_idx = similarity_idx[:n]
     return [list(bert_tokenizer.ids_to_tokens.values())[idx] for idx in similarity_idx]
 
@@ -176,5 +180,7 @@ def visualise():
 
 
 analogy_solver("man", "woman", "king", embedding_matrix, labels)
+analogy_solver("london", "uk", "moscow", embedding_matrix, labels)
+analogy_solver("puppy", "dog", "kitten", embedding_matrix, labels)
 
 # %%
