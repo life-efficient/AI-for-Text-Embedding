@@ -8,6 +8,7 @@ from transformers import BertModel, BertTokenizer
 import pandas as pd
 from word_types.prepositions import prepositions
 import torch
+import torchmetrics
 # %% CUSTOM TOKENISER
 # train_corpus = "pythonwiki.txt"
 
@@ -138,9 +139,22 @@ def analogy_solver(a, b, c, embedding_matrix, labels):
     print(c_embedding.shape)
     d_embedding = c_embedding + transformation_vector
     print(d_embedding.shape)
-    # TODO turn trans vecotr into a word ???
-    # TODO add transformation vector to new_initial_word to get resulting embedding
-    # TODO turn resulting embedding into word
+    nearest_tokens = get_token_from_embedding(d_embedding)
+    for d in nearest_tokens:
+        print(f"{a} is to {b} as {c} is to {d}")
+
+
+def get_token_from_embedding(embedding, n=20):
+    # cosine similarity from d_embedding to embedding of all words
+    similarity = torchmetrics.functional.pairwise_cosine_similarity(
+        embedding.unsqueeze(0), embedding_matrix).squeeze()
+    similarity_idx = torch.argsort(similarity, dim=0)
+    similarity_idx = similarity_idx[:n]
+    return [list(bert_tokenizer.ids_to_tokens.values())[idx] for idx in similarity_idx]
+
+
+def visualise():
+    # VISUALISE
     embedding_matrix = torch.cat(
         (
             embedding_matrix,
@@ -160,13 +174,7 @@ def analogy_solver(a, b, c, embedding_matrix, labels):
         label_names=label_names
     )
 
-    # cosine similarity from d_embedding to embedding of all words
-    # find the smallest one = closest word = d
-    # print(f"{a} is to {b} as {c} is to {d}")
-
 
 analogy_solver("man", "woman", "king", embedding_matrix, labels)
-
-# %%
 
 # %%
